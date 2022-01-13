@@ -1,8 +1,10 @@
 const currentDay= document.querySelector("#currentDay");
 const description= document.querySelector(".description");
-const container= document.querySelector(".container")
-let hour= moment().hour(9)
-console.log(hour.format("hA"));
+var container= document.querySelector(".container")
+let savedPush= document.querySelector("#savedPush")
+let hour= moment("9am","ha")
+const current= moment()
+console.log(hour.format("ha"));
 schedule = [];
 // GIVEN I am using a daily planner to create a schedule
 // WHEN I open the planner
@@ -18,21 +20,33 @@ for (var i =0; i < 9; i++) {
   div.setAttribute("data-index", i);
   h2 = document.createElement("h2");
   h2.textContent = time.format("hA");
-  time = hour.add(1,"hours")
   h2.className = "hour col-2";
   // WHEN I click into a timeblock
   // THEN I can enter an event
   textArea= document.createElement("textarea");
   textArea.className = "col-9 description";
-  schedule.push(i);
+ 
+  if (time.isSame(current)) {
+    textArea.classList.add('present');
+  }
+  else 
+  if (time.isBefore(current)) {
+    textArea.classList.add("past");
+  }
+  else if (time.isAfter(current)) {
+    textArea.classList.add("future");
+  }
+  time = hour.add(1,"hours")
+  
+
+  schedule.push("");
   button= document.createElement("button");
   button.innerHTML = '<i class="fas fa-save"></i>';
   button.className = "saveBtn col-1";
-  container.appendChild(div)
-  div.appendChild(h2)
-  div.appendChild(textArea)
-  div.appendChild(button)
-  
+  container.appendChild(div);
+  div.appendChild(h2);
+  div.appendChild(textArea);
+  div.appendChild(button);
 }
 // WHEN I refresh the page
 // THEN the saved events persist
@@ -46,12 +60,12 @@ for (var i =0; i < 9; i++) {
     }
   
     // This is a helper function that will render todos to the DOM
-    // for (var i =0; schedule.length; i++) {
-      
-     var render = document.querySelector(`[data-index="${0}"]`);
+    for (var i =0; i < schedule.length; i++) {
+
+     var render = document.querySelector(`[data-index="${i}"]`);
      var renderText= render.querySelector('textarea');
-     renderText.textContent = schedule[0];
-// }
+     renderText.textContent = schedule[i];
+    }
   
 // WHEN I view the timeblocks for that day
 
@@ -60,6 +74,7 @@ for (var i =0; i < 9; i++) {
 
 // WHEN I click the save button for that timeblock
 // THEN the text for that event is saved in local storage
+
 container.addEventListener("click", function(event) {
     var element = event.target;
   
@@ -70,14 +85,17 @@ container.addEventListener("click", function(event) {
       console.log(element.parentElement.querySelector("textarea").value)
       var activity = element.parentElement.querySelector("textarea").value
       schedule[index] = activity
+      storeActivity();
+      console.log("saved?")     
       }
       // Store updated activities in localStorage
-      storeActivity();
+      
     }
   );
 
   function storeActivity() {
     localStorage.setItem("schedule", JSON.stringify(schedule));
+
   }
 
 function renderSchedules() {
